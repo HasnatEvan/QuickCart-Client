@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import useAuth from "../../../../Hooks/useAuth";
 import useAxiosSecure from "../../../../Hooks/useAxiosSecure";
@@ -39,29 +38,31 @@ const MyOrder = () => {
 
   return (
     <div className="overflow-x-auto px-4 py-6">
-      <h2 className="text-xl font-semibold mb-4">My Orders</h2>
-      <table className="min-w-full table-auto border-collapse bg-white shadow-md rounded-lg overflow-hidden">
-        <thead className="bg-gray-200">
-          <tr className="text-left">
-            <th className="px-4 py-2">Product</th>
-            <th className="px-4 py-2">Price</th>
-            <th className="px-4 py-2">Quantity</th>
-            <th className="px-4 py-2">Status</th>
-            <th className="px-4 py-2">Address</th>
-            <th className="px-4 py-2">Size</th>
-            <th className="px-4 py-2">Transaction ID</th>
-            <th className="px-4 py-2">Action</th>
+      <h2 className="text-2xl font-semibold mb-6 text-center">📦 My Orders</h2>
+      <table className="w-full border border-gray-300 bg-white shadow-md rounded-lg overflow-hidden">
+        <thead className="bg-lime-500 text-white text-center">
+          <tr>
+            <th className="px-4 py-3 border">Product</th>
+            <th className="px-4 py-3 border">Name</th>
+            <th className="px-4 py-3 border">Price</th>
+            <th className="px-4 py-3 border">Quantity</th>
+            <th className="px-4 py-3 border">Status</th>
+            <th className="px-4 py-3 border">Address</th>
+            <th className="px-4 py-3 border">Number</th>
+            <th className="px-4 py-3 border">Size</th>
+            <th className="px-4 py-3 border">Transaction ID</th>
+            <th className="px-4 py-3 border">Action</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody className="text-center">
           {orders.length > 0 ? (
             orders.map((order) => (
               <OrdersDataRow key={order._id} order={order} refetch={refetch} />
             ))
           ) : (
             <tr>
-              <td colSpan="8" className="text-center text-gray-500 py-4">
-                No orders found.
+              <td colSpan="9" className="text-center text-gray-500 py-6">
+                ❌ No orders found.
               </td>
             </tr>
           )}

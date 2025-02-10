@@ -6,12 +6,16 @@ import { AiOutlineClose } from "react-icons/ai";
 import { MdEmail } from "react-icons/md";
 import { FaShopify } from "react-icons/fa";
 import { BiMoney } from "react-icons/bi";
+import { AiOutlineShoppingCart } from "react-icons/ai";
+import { FaShoppingCart } from "react-icons/fa";
 import OrderModel from './OrderModel'; // Import the modal component
+import useRole from '../../Hooks/useRole';
 
 const CardDetails = () => {
   const { id } = useParams();
   const [isModalOpen, setIsModalOpen] = useState(false); // State to control modal
   const [selectedSize, setSelectedSize] = useState(''); // State to manage selected size
+  const [role] = useRole();
 
   const { data: product, isLoading, error } = useQuery({
     queryKey: ['product', id],
@@ -36,6 +40,14 @@ const CardDetails = () => {
       </div>
     );
   }
+
+  // Calculate discounted price if a discount percentage exists
+  const discountedPrice = product.discountPercentage
+    ? product.price - (product.price * product.discountPercentage) / 100
+    : product.price;
+
+  // Disable button if the role is 'seller' or 'admin'
+  const isDisabled = role === 'seller' || role === 'admin';
 
   return (
     <div className="p-6 relative">
@@ -65,9 +77,21 @@ const CardDetails = () => {
           </h2>
 
           {/* Price */}
-          <p className="text-lg font-bold text-gray-800 mb-2 flex items-center gap-2">
-            <BiMoney className="text-green-600" /> Price: {product.price} BDT
-          </p>
+          <div className="mb-4">
+            <p className="text-lg font-bold text-gray-800 mb-2 flex items-center gap-2">
+              <BiMoney className="text-green-600" /> Price:
+              {product.discountPercentage ? (
+                <>
+                  <span className="line-through text-gray-500">{product.price} BDT</span>
+                  <span className="text-red-600 ml-2">
+                    {discountedPrice.toFixed(2)} BDT (Discounted)
+                  </span>
+                </>
+              ) : (
+                <span>{product.price} BDT</span> // When no discount is available
+              )}
+            </p>
+          </div>
 
           <p className="text-gray-700 mb-4">{product.description}</p>
 
@@ -77,6 +101,11 @@ const CardDetails = () => {
               <FaShopify className="text-blue-600" /> Shop: {product.shopName}
             </h4>
             <p className="text-gray-600">Available Quantity: {product.quantity}</p>
+            {product.shopPhoneNumber && (
+              <p className="text-gray-600 mt-2">
+                <strong>Shop Phone:</strong> {product.shopPhoneNumber}
+              </p>
+            )}
           </div>
 
           <div className="mb-4">
@@ -104,6 +133,7 @@ const CardDetails = () => {
               />
               <div>
                 <p className="font-semibold">Name: {product.seller.name}</p>
+                <p className="font-semibold">Seller Number: {product.shopPunnumber}</p>
                 <p className="text-gray-600 flex items-center gap-2">
                   <MdEmail className="text-red-600" /> {product.seller.email}
                 </p>
@@ -111,15 +141,32 @@ const CardDetails = () => {
             </div>
           </div>
 
-          {/* Order Now Button */}
-          <div className="mt-4">
+          {/* Buttons - Order Now & Add to Cart */}
+          <div className="mt-4 flex flex-wrap gap-4 justify-between">
+            {/* Order Now Button */}
             <button
-              disabled={product.quantity === 0}
-              onClick={() => setIsModalOpen(true)} // Open modal on click
-              className={`w-full py-4 rounded-md text-white transition duration-300 ease-in-out 
-              ${product.quantity > 0 ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-gray-400 cursor-not-allowed'}`}
+              disabled={isDisabled || product.quantity === 0}
+              onClick={() => setIsModalOpen(true)}
+              className={`relative w-full sm:w-1/2 lg:w-1/4 py-3 flex items-center justify-center gap-2 rounded-md text-white font-semibold transition duration-300 ease-in-out 
+              ${product.quantity > 0 && !isDisabled ? 'bg-lime-500 hover:bg-lime-600' : 'bg-gray-400 cursor-not-allowed'}
+              before:absolute before:inset-0 before:border-2 before:border-lime-500 before:rounded-md before:opacity-0 before:transition-all before:duration-500
+              hover:before:opacity-100 hover:before:scale-105`}
             >
-              {product.quantity > 0 ? 'Order Now' : 'Out of Stock'}
+              <FaShoppingCart />
+              {isDisabled ? 'You Cannot Buy' : product.quantity > 0 ? 'Order Now' : 'Out of Stock'}
+            </button>
+
+            {/* Add to Cart Button */}
+            <button
+              disabled={isDisabled || product.quantity === 0}
+              onClick={() => console.log('Added to cart')}
+              className={`relative w-full sm:w-1/2 lg:w-1/4 py-3 flex items-center justify-center gap-2 rounded-md text-white font-semibold transition duration-300 ease-in-out 
+              ${product.quantity > 0 && !isDisabled ? 'bg-lime-500 hover:bg-lime-600' : 'bg-gray-400 cursor-not-allowed'}
+              before:absolute before:inset-0 before:border-2 before:border-lime-500 before:rounded-md before:opacity-0 before:transition-all before:duration-500
+              hover:before:opacity-100 hover:before:scale-105`}
+            >
+              <AiOutlineShoppingCart />
+              Add to Cart
             </button>
           </div>
         </div>
@@ -130,7 +177,7 @@ const CardDetails = () => {
         <OrderModel
           closeModal={() => setIsModalOpen(false)}
           productName={product.productName}
-          price={product.price}
+          price={discountedPrice.toFixed(2)} // Pass the discounted price
           size={selectedSize}
           deliveryPrice={product.deliveryPrice} // Assuming this field is available in the response
           bkashNumber={product.bkashNumber} // Assuming this field is available in the response

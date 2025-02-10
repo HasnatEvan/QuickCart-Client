@@ -1,97 +1,108 @@
-import { useNavigate } from "react-router-dom";
+
+import { useNavigate, useParams } from "react-router-dom";
 import { imageUpload } from "../../../../Api/utils";
 import useAuth from "../../../../Hooks/useAuth";
 import useAxiosSecure from "../../../../Hooks/useAxiosSecure";
 import Swal from 'sweetalert2';
+import { useEffect, useState } from "react";
 
-const AddItem = () => {
-  const { user, loading } = useAuth();
+const EditInventory = () => {
+  const { user} = useAuth();
   const axiosSecure = useAxiosSecure();
-  const navigate = useNavigate(); // Initialize navigate
+  const navigate = useNavigate();
+  const { id } = useParams(); // To get the product ID from URL
+
+  const [product, setProduct] = useState(null);
+
+  useEffect(() => {
+    const fetchProductData = async () => {
+      try {
+        const { data } = await axiosSecure.get(`/product/${id}`);
+        setProduct(data);
+      } catch (error) {
+        console.error("Error fetching product data", error);
+      }
+    };
+
+    fetchProductData();
+  }, [id]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     const form = event.target;
 
     const productName = form.productName.value;
-    const image = form.image.files[0]; // Handle file input
+    const image = form.image.files[0]; 
     const shopName = form.shopName.value;
     const description = form.description.value;
-    const quantity = parseInt(form.quantity.value, 10); // <-- Converting quantity to number
-    const price = parseFloat(form.price.value);         // <-- Converting price to number (float)
-    const discountPercentage = parseFloat(form.discountPercentage.value); // Discount Percentage
-    const category = form.category.value; // Category is now selected from a dropdown
+    const quantity = parseInt(form.quantity.value, 10);
+    const price = parseFloat(form.price.value);
+    const discountPercentage = parseFloat(form.discountPercentage.value);
+    const category = form.category.value;
     const bkashNumber = form.bkashNumber.value;
     const nogodNumber = form.nogodNumber.value;
-    const shopPunnumber = form.shopPunnumber.value;  // Shop Punnumber Field
+    const shopPunnumber = form.shopPunnumber.value;
     const sizes = Array.from({ length: 7 }, (_, index) => form[`size${index + 1}`].value);
-    const deliveryPrice = parseFloat(form.deliveryPrice.value); // <-- Converting deliveryPrice to number
+    const deliveryPrice = parseFloat(form.deliveryPrice.value);
 
-    // Calculate the discounted price
     const discountAmount = (price * discountPercentage) / 100;
     const discountedPrice = price - discountAmount;
 
     try {
-      // Image upload handling
-      const imageUrl = await imageUpload(image);
+      const imageUrl = image ? await imageUpload(image) : product.image;
 
-      // Seller information
-      const seller = {
-        name: user?.displayName,
-        image: user?.photoURL,
-        email: user?.email,
-      };
-
-      // Product data (with numeric values)
       const productData = {
         productName,
-        image: imageUrl,  // Upload image URL instead of image file
+        image: imageUrl,
         shopName,
         description,
-        quantity,        // This is now a number
-        price,           // This is now a number
-        discountedPrice, // This is the new discounted price
+        quantity,
+        price,
+        discountedPrice,
         category,
         bkashNumber,
         nogodNumber,
-        shopPunnumber,   // New field added
+        shopPunnumber,
         sizes,
-        seller,
-        deliveryPrice,   // This is now a number
-        discountPercentage, // The discount percentage is included
+        seller: {
+          name: user?.displayName,
+          image: user?.photoURL,
+          email: user?.email,
+        },
+        deliveryPrice,
+        discountPercentage,
       };
 
-      // Post product data to the backend
-      await axiosSecure.post('/products', productData);
+      await axiosSecure.put(`/products/${id}`, productData);
 
-      // Show success message
       Swal.fire({
         title: 'Success!',
-        text: 'Product added successfully!',
+        text: 'Product updated successfully!',
         icon: 'success',
         confirmButtonText: 'Cool'
       });
+
       navigate('/dashboard/my-inventory');
-
-      // Optionally reset the form
       form.reset();
-
     } catch (error) {
-      // Show error message
       Swal.fire({
         title: 'Error!',
         text: 'Something went wrong. Please try again.',
         icon: 'error',
         confirmButtonText: 'Okay'
       });
-      console.error("Error adding product", error);
+      console.error("Error updating product", error);
     }
   };
+
+  if (!product) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="flex justify-center items-center h-auto bg-gray-50 py-12">
       <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-4xl">
-        <h2 className="text-3xl font-semibold text-center text-gray-800 mb-6">Add New Product</h2>
+        <h2 className="text-3xl font-semibold text-center text-gray-800 mb-6">Edit Product</h2>
 
         <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {/* Product Name Field */}
@@ -102,7 +113,7 @@ const AddItem = () => {
               id="productName"
               name="productName"
               className="w-full p-4 mt-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter Name"
+              defaultValue={product.productName}
               required
             />
           </div>
@@ -116,7 +127,6 @@ const AddItem = () => {
               name="image"
               accept="image/*"
               className="w-full p-4 mt-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-              required
             />
           </div>
 
@@ -128,7 +138,7 @@ const AddItem = () => {
               id="shopName"
               name="shopName"
               className="w-full p-4 mt-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter Shop Name"
+              defaultValue={product.shopName}
               required
             />
           </div>
@@ -140,7 +150,7 @@ const AddItem = () => {
               id="description"
               name="description"
               className="w-full p-4 mt-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter Description"
+              defaultValue={product.description}
               required
             />
           </div>
@@ -153,7 +163,7 @@ const AddItem = () => {
               id="quantity"
               name="quantity"
               className="w-full p-4 mt-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter Quantity"
+              defaultValue={product.quantity}
               required
             />
           </div>
@@ -166,7 +176,7 @@ const AddItem = () => {
               id="price"
               name="price"
               className="w-full p-4 mt-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter Price"
+              defaultValue={product.price}
               required
             />
           </div>
@@ -179,7 +189,7 @@ const AddItem = () => {
               id="discountPercentage"
               name="discountPercentage"
               className="w-full p-4 mt-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter Discount Percentage"
+              defaultValue={product.discountPercentage}
             />
           </div>
 
@@ -191,7 +201,7 @@ const AddItem = () => {
               id="deliveryPrice"
               name="deliveryPrice"
               className="w-full p-4 mt-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter Delivery Price"
+              defaultValue={product.deliveryPrice}
               required
             />
           </div>
@@ -203,6 +213,7 @@ const AddItem = () => {
               id="category"
               name="category"
               className="w-full p-4 mt-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+              defaultValue={product.category}
               required
             >
               <option value="">Select Category</option>
@@ -222,7 +233,7 @@ const AddItem = () => {
               id="bkashNumber"
               name="bkashNumber"
               className="w-full p-4 mt-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter Bkash Number"
+              defaultValue={product.bkashNumber}
               required
             />
           </div>
@@ -235,7 +246,7 @@ const AddItem = () => {
               id="nogodNumber"
               name="nogodNumber"
               className="w-full p-4 mt-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter Nogod Number"
+              defaultValue={product.nogodNumber}
               required
             />
           </div>
@@ -248,7 +259,7 @@ const AddItem = () => {
               id="shopPunnumber"
               name="shopPunnumber"
               className="w-full p-4 mt-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter Shop Punnumber"
+              defaultValue={product.shopPunnumber}
               required
             />
           </div>
@@ -256,31 +267,21 @@ const AddItem = () => {
           {/* Size Fields */}
           {Array.from({ length: 7 }).map((_, index) => (
             <div key={index}>
-              <label htmlFor={`size${index + 1}`} className="block text-sm font-semibold text-gray-700">
-                Size {index + 1} (Optional)
-              </label>
+              <label htmlFor={`size${index + 1}`} className="block text-sm font-semibold text-gray-700">Size {index + 1}</label>
               <input
                 type="text"
                 id={`size${index + 1}`}
                 name={`size${index + 1}`}
                 className="w-full p-4 mt-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-                placeholder={`Enter size ${index + 1}`}
+                defaultValue={product.sizes[index] || ''}
               />
             </div>
           ))}
 
           {/* Submit Button */}
-          <div className="flex justify-center col-span-1 sm:col-span-2 md:col-span-3 mt-6">
-            <button
-              type="submit"
-              className="w-full sm:w-full bg-lime-500 text-white p-3 rounded-md hover:bg-lime-800-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              disabled={loading}
-            >
-              {loading ? (
-                <span className="loading loading-ring loading-md"></span>
-              ) : (
-                'Add Product'
-              )}
+          <div className="col-span-1 sm:col-span-2 md:col-span-3 text-center">
+            <button type="submit" className="w-full bg-blue-500 text-white p-4 mt-4 rounded-md hover:bg-blue-600">
+              Update Product
             </button>
           </div>
         </form>
@@ -289,4 +290,4 @@ const AddItem = () => {
   );
 };
 
-export default AddItem;
+export default EditInventory;

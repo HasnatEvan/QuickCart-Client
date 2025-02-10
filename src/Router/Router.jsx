@@ -17,6 +17,8 @@ import SellerRoute from "./SellerRoute";
 import SellerData from "../Pages/Dashboard/Admin/SellerData/SellerData";
 import ViewDetails from "../Pages/Dashboard/Admin/SellerData/ViewDetails";
 import MyInventory from "../Pages/Dashboard/Seller/My Inventory/MyInventory";
+import ManageOrder from "../Pages/Dashboard/Customer/ManageOrder/ManageOrder";
+import EditInventory from "../Pages/Dashboard/Seller/My Inventory/EditInventory";
 
 export const router = createBrowserRouter([
     {
@@ -73,17 +75,25 @@ export const router = createBrowserRouter([
                 path:'my-inventory',
                 element:<PrivateRoute><SellerRoute><MyInventory></MyInventory></SellerRoute></PrivateRoute>
             },
+            {
+                path:'edit-products/:id',
+                element:<PrivateRoute><SellerRoute><EditInventory>a</EditInventory></SellerRoute></PrivateRoute>
+            },
+            {
+                path:'manage-orders',
+                element:<PrivateRoute><SellerRoute><ManageOrder></ManageOrder></SellerRoute></PrivateRoute>
+            },
 
 
 
 
 
             {
-                path:'myOrders',
+                path:'my-orders',
                 element:<MyOrder></MyOrder>
             },
             {
-                path:'becomeSeller',
+                path:'become-seller',
                 element:<BecomeSeller></BecomeSeller>
             },
         ]

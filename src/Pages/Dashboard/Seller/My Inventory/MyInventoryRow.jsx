@@ -1,6 +1,8 @@
 import PropTypes from "prop-types";
 import Swal from "sweetalert2";
 import useAxiosSecure from "../../../../Hooks/useAxiosSecure";
+import { FaEdit, FaTrashAlt } from "react-icons/fa"; // Importing Edit and Delete Icons
+import { Link } from "react-router-dom";
 
 const MyInventoryRow = ({ product, refetch }) => {
     const {
@@ -35,52 +37,59 @@ const MyInventoryRow = ({ product, refetch }) => {
                 await axiosSecure.delete(`/products/${_id}`);
                 Swal.fire("Deleted!", "Product has been deleted.", "success");
                 refetch();
-            }catch {
+            } catch {
                 Swal.fire("Error!", "Failed to delete product.", "error");
             }
         }
     };
 
     return (
-        <tr className="border-t border-gray-300 hover:bg-gray-100">
+        <tr className="border-t border-gray-300 hover:bg-indigo-50">
             <td className="p-3 text-center border">
                 <img
                     src={image}
                     alt={productName}
-                    className="w-16 h-16 object-cover rounded-lg"
+                    className="w-16 h-16 object-cover rounded-lg shadow-lg transition-transform transform hover:scale-105"
                 />
             </td>
-            <td className="p-3 border text-left">{productName}</td>
-            <td className="p-3 border text-left">{shopName}</td>
-            <td className="p-3 border text-center">{price} BDT</td>
-            <td className="p-3 border text-center">{quantity}</td>
-            <td className="p-3 border text-left">{category}</td>
-            <td className="p-3 border text-left">
-    {sizes.length > 0 ? (
-        <div className="flex gap-2">
-            {sizes.map((size, index) => (
-                <span key={index} className="bg-gray-200 px-3 py-1 rounded-lg text-sm">
-                    {size}
-                </span>
-            ))}
-        </div>
-    ) : (
-        "N/A"
-    )}
-</td>
+            <td className="p-3 border text-center text-gray-800 font-semibold">
+                <div className="whitespace-nowrap overflow-x-auto">{productName}</div>
+            </td>
 
-            <td className="p-3 border text-left">{bkashNumber || "N/A"}</td>
-            <td className="p-3 border text-left">{nogodNumber || "N/A"}</td>
-            <td className="p-3 border text-center">{deliveryPrice || 'Free'}</td>
+            <td className="p-3 border text-left text-gray-600">{shopName}</td>
+            <td className="p-3 border text-center text-gray-800">{price} BDT</td>
+            <td className="p-3 border text-center text-gray-800">{quantity}</td>
+            <td className="p-3 border text-left text-gray-600">{category}</td>
+            <td className="p-3 border text-left">
+                {sizes.length > 0 ? (
+                    <div className="flex gap-2">
+                        {sizes.map((size, index) => (
+                            <span key={index} className="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-lg text-sm">
+                                {size}
+                            </span>
+                        ))}
+                    </div>
+                ) : (
+                    <span className="text-gray-400">N/A</span>
+                )}
+            </td>
+
+            <td className="p-3 border text-left text-gray-600">{bkashNumber || "N/A"}</td>
+            <td className="p-3 border text-left text-gray-600">{nogodNumber || "N/A"}</td>
+            <td className="p-3 border text-center text-gray-600">{deliveryPrice || 'Free'}</td>
             <td className="p-3 text-center flex justify-center items-center mt-3 space-x-3">
-                <button className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all">
-                    Edit
+               <Link to={`/dashboard/edit-products/${_id}`}>
+               <button className="bg-lime-500 text-white px-4 py-2 rounded-lg hover:bg-lime-600 transition-all flex items-center space-x-2 shadow-md hover:shadow-lg">
+                    <FaEdit className="text-white" /> {/* Edit Icon */}
+                    <span className="hidden md:block">Edit</span>
                 </button>
+               </Link>
                 <button
                     onClick={handleDelete}
-                    className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-all"
+                    className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-all flex items-center space-x-2 shadow-md hover:shadow-lg"
                 >
-                    Delete
+                    <FaTrashAlt className="text-white" /> {/* Delete Icon */}
+                    <span className="hidden md:block">Delete</span>
                 </button>
             </td>
         </tr>

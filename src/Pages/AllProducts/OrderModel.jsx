@@ -4,7 +4,6 @@ import useAuth from "../../Hooks/useAuth";
 import PropTypes from "prop-types";
 import useAxiosSecure from "../../Hooks/useAxiosSecure";
 import { useNavigate } from "react-router-dom";
-
 import Swal from "sweetalert2";
 
 const OrderModel = ({
@@ -21,15 +20,15 @@ const OrderModel = ({
 }) => {
   const axiosSecure = useAxiosSecure();
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const [customerPhone, setCustomerPhone] = useState("");
   const [customerAddress, setCustomerAddress] = useState("");
   const [selectedQuantity, setSelectedQuantity] = useState(1);
   const [transactionId, setTransactionId] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState("bkash");
+  const [paymentMethod, setPaymentMethod] = useState("");
   const [totalPrice, setTotalPrice] = useState(price);
-  const navigate = useNavigate();
-
+  const [loading, setLoading] = useState(false); // New loading state
 
   const handleQuantityChange = (e) => {
     const value = parseInt(e.target.value, 10);
@@ -41,96 +40,107 @@ const OrderModel = ({
 
   const handleConfirmOrder = async () => {
     if (!customerPhone.trim()) {
-        Swal.fire({
-            title: "Oops!",
-            text: "Please enter your phone number.",
-            icon: "warning",
-            confirmButtonText: "OK",
-        });
-        return;
+      Swal.fire({
+        title: "Oops!",
+        text: "Please enter your phone number.",
+        icon: "warning",
+        confirmButtonText: "OK",
+      });
+      return;
     }
     if (!customerAddress.trim()) {
-        Swal.fire({
-            title: "Oops!",
-            text: "Please enter your delivery address.",
-            icon: "warning",
-            confirmButtonText: "OK",
-        });
-        return;
+      Swal.fire({
+        title: "Oops!",
+        text: "Please enter your delivery address.",
+        icon: "warning",
+        confirmButtonText: "OK",
+      });
+      return;
     }
     if (deliveryPrice > 0 && !transactionId.trim()) {
-        Swal.fire({
-            title: "Oops!",
-            text: "Please enter your transaction ID.",
-            icon: "warning",
-            confirmButtonText: "OK",
-        });
-        return;
+      Swal.fire({
+        title: "Oops!",
+        text: "Please enter your transaction ID.",
+        icon: "warning",
+        confirmButtonText: "OK",
+      });
+      return;
+    }
+    if (deliveryPrice > 0 && !paymentMethod) {
+      Swal.fire({
+        title: "Oops!",
+        text: "Please select a payment method.",
+        icon: "warning",
+        confirmButtonText: "OK",
+      });
+      return;
     }
 
+    setLoading(true); // Set loading state to true
+
     const updatedOrderInfo = {
-        customer: {
-            name: user?.displayName,
-            email: user?.email,
-            image: user?.photoURL,
-        },
-        productId: _id,
-        price: totalPrice,
-        quantity: selectedQuantity,
-        transactionId,
-        paymentMethod,
-        customerPhone,
-        deliveryPrice,
-        address: customerAddress,
-        seller: seller?.email,
-        size: size || "No size available",
-        status: "pending",
+      customer: {
+        name: user?.displayName,
+        email: user?.email,
+        image: user?.photoURL,
+      },
+      productId: _id,
+      price: totalPrice,
+      quantity: selectedQuantity,
+      transactionId,
+      paymentMethod,
+      customerPhone,
+      deliveryPrice,
+      address: customerAddress,
+      seller: seller?.email,
+      size: size || "No size available",
+      status: "pending",
     };
 
     try {
-        const response = await axiosSecure.post("/orders", updatedOrderInfo);
-        if (response.data.insertedId) {
-            const updateStock = await axiosSecure.patch(
-                `/products/quantity/${_id}`,
-                { quantityToUpdate: selectedQuantity,status: "decrease" }
-            );
+      const response = await axiosSecure.post("/orders", updatedOrderInfo);
+      if (response.data.insertedId) {
+        const updateStock = await axiosSecure.patch(`/products/quantity/${_id}`, {
+          quantityToUpdate: selectedQuantity,
+          status: "decrease",
+        });
 
-            if (updateStock.data.modifiedCount > 0) {
-                Swal.fire({
-                    title: "Success!",
-                    text: "Order placed successfully!",
-                    icon: "success",
-                    confirmButtonText: "OK",
-                }).then(() => {
-                    // Refresh the page after successful order
-                    navigate('/dashboard/myOrders'); // Navigate to the myOrders page
-                });
-            } else {
-                Swal.fire({
-                    title: "Error!",
-                    text: "Stock update failed. Please check inventory.",
-                    icon: "error",
-                    confirmButtonText: "OK",
-                });
-            }
-        }
-    } catch (error) {
-        console.error("Order submission failed:", error);
-        Swal.fire({
+        if (updateStock.data.modifiedCount > 0) {
+          Swal.fire({
+            title: "Success!",
+            text: "Order placed successfully!",
+            icon: "success",
+            confirmButtonText: "OK",
+          }).then(() => {
+            navigate('/dashboard/my-orders');
+          });
+        } else {
+          Swal.fire({
             title: "Error!",
-            text: "Failed to place order. Please try again.",
+            text: "Stock update failed. Please check inventory.",
             icon: "error",
             confirmButtonText: "OK",
-        });
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Order submission failed:", error);
+      Swal.fire({
+        title: "Error!",
+        text: "Failed to place order. Please try again.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+    } finally {
+      setLoading(false); // Set loading state back to false
     }
-};
-
+  };
 
   return (
     <Dialog open={true} as="div" className="relative z-10" onClose={closeModal}>
       <div className="fixed inset-0 bg-black/50 backdrop-blur-md flex justify-center items-center px-4">
         <DialogPanel className="w-full max-w-lg md:max-w-2xl lg:max-w-3xl rounded-lg bg-white shadow-lg max-h-[calc(100vh-50px)] overflow-y-auto">
-          <div className="px-4 py-6">
+          <div className="px-4 py-6 mt-10">
             <DialogTitle className="text-lg font-semibold text-gray-800 text-center">
               Confirm Your Order
             </DialogTitle>
@@ -226,7 +236,7 @@ const OrderModel = ({
               )}
             </div>
 
-            <div className="mt-6 flex flex-col md:flex-row justify-end gap-3">
+            <div className="mt-6 flex flex-col md:flex-row justify-between gap-3">
               <button
                 className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400"
                 onClick={closeModal}
@@ -234,10 +244,14 @@ const OrderModel = ({
                 Cancel
               </button>
               <button
-                className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+                className="px-6 py-3 bg-lime-500 text-white rounded-md text-sm sm:text-base md:text-lg lg:text-xl"
                 onClick={handleConfirmOrder}
               >
-                Confirm Order ({totalPrice} BDT)
+                {loading ? (
+                  <span className="loading loading-ball loading-lg"></span>
+                ) : (
+                  `Confirm Order (${deliveryPrice > 0 ? `${deliveryPrice} BDT` : `${price} BDT`})`
+                )}
               </button>
             </div>
           </div>
@@ -252,7 +266,7 @@ OrderModel.propTypes = {
   productName: PropTypes.string.isRequired,
   price: PropTypes.number.isRequired,
   size: PropTypes.string,
-  seller: PropTypes.object.isRequired,
+  seller: PropTypes.object,
   deliveryPrice: PropTypes.number.isRequired,
   bkashNumber: PropTypes.string.isRequired,
   nogodNumber: PropTypes.string.isRequired,
