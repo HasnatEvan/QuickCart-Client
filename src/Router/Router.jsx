@@ -9,7 +9,6 @@ import AddItem from "../Pages/Dashboard/Seller/AddItem/AddItem";
 import AllProducts from "../Pages/AllProducts/AllProducts";
 import CardDetails from "../Pages/AllProducts/CardDetails";
 import MyOrder from "../Pages/Dashboard/Customer/MYOrder/MyOrder";
-import BecomeSeller from "../Pages/Dashboard/Customer/BecomeSeller/becomeSeller";
 import ManageUsers from "../Pages/Dashboard/Admin/ManageUsres/ManageUsers";
 import PrivateRoute from "./PrivateRoute";
 import AdminRoute from "./AdminRoute";
@@ -19,6 +18,9 @@ import ViewDetails from "../Pages/Dashboard/Admin/SellerData/ViewDetails";
 import MyInventory from "../Pages/Dashboard/Seller/My Inventory/MyInventory";
 import ManageOrder from "../Pages/Dashboard/Customer/ManageOrder/ManageOrder";
 import EditInventory from "../Pages/Dashboard/Seller/My Inventory/EditInventory";
+import BecomeSeller from "../Pages/Dashboard/Customer/BecomeSeller/BecomeSeller";
+import AddToCart from "../Pages/Dashboard/Customer/AddToCart/AddToCart";
+import Profile from "../Pages/Dashboard/All/Profile";
 
 export const router = createBrowserRouter([
     {
@@ -53,11 +55,11 @@ export const router = createBrowserRouter([
         element: <PrivateRoute><DashBoard></DashBoard></PrivateRoute>,
         children:[
             {
-                path:'manageUsers',
+                path:'manage-users',
                 element:<PrivateRoute><AdminRoute><ManageUsers></ManageUsers></AdminRoute></PrivateRoute>
             },
             {
-                path:'sellerData',
+                path:'seller-data',
                 element:<PrivateRoute><AdminRoute><SellerData></SellerData></AdminRoute></PrivateRoute>
             },
             {
@@ -96,6 +98,17 @@ export const router = createBrowserRouter([
                 path:'become-seller',
                 element:<BecomeSeller></BecomeSeller>
             },
+            {
+                path:'add-to-cart',
+                element:<AddToCart></AddToCart>
+            },
+
+
+
+            {
+                path:'profile',
+                element:<Profile></Profile>
+            }
         ]
     }
 ]);

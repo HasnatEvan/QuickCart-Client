@@ -70,17 +70,23 @@ const NavBar = () => {
 
                         {/* Dropdown Menu */}
                         <li className="relative" ref={menuRef}>
-                            <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-white  flex items-center space-x-2">
+                            <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-white flex items-center space-x-2">
                                 <span>Menu</span>
                                 <IoIosArrowDown /> {/* React Icon added here */}
                             </button>
                             {isMenuOpen && (
-                                <ul className="absolute left-0 bg-white shadow-md rounded-lg py-2 w-40 mt-2">
+                                <motion.ul
+                                    className="absolute left-0 bg-white shadow-md rounded-lg py-2 w-40 mt-2"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    transition={{ duration: 0.3 }}
+                                >
                                     <li>
                                         <NavLink
                                             to="/products"
                                             className={({ isActive }) =>
-                                                isActive ? "block px-4 py-2 text-white font-semibold" : "block px-4 py-2 text-gray-700 hover:bg-gray-100"
+                                                isActive ? "block px-4 py-2 text-gray-700 font-semibold" : "block px-4 py-2 text-gray-700 hover:bg-gray-100"
                                             }
                                         >
                                             All Products
@@ -96,7 +102,7 @@ const NavBar = () => {
                                             Dashboard
                                         </NavLink>
                                     </li>
-                                </ul>
+                                </motion.ul>
                             )}
                         </li>
 
@@ -135,7 +141,7 @@ const NavBar = () => {
                                 </NavLink>
                             </li>
                             <li>
-                                <NavLink to="/products" onClick={() => setIsOpen(false)} className={({ isActive }) => (isActive ? "text-white font-semibold" : "text-gray-700 hover:text-blue-600 transition")}>
+                                <NavLink to="/products" onClick={() => setIsOpen(false)} className={({ isActive }) => (isActive ? "text-gray-700 font-semibold" : "text-gray-700 hover:text-blue-600 transition")}>
                                     All Products
                                 </NavLink>
                             </li>

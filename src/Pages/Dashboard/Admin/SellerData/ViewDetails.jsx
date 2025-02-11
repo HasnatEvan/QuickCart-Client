@@ -109,6 +109,11 @@ const ViewDetails = () => {
                     <strong className="text-lg text-gray-700">Role:</strong>
                     <p className="text-lg text-gray-600">{seller.role}</p>
                 </div>
+                {/* Seller shop name */}
+                <div className="flex justify-between items-center border-b pb-4">
+                    <strong className="text-lg text-gray-700">Shop Name:</strong>
+                    <p className="text-lg text-gray-600">{seller.shopName}</p>
+                </div>
 
                 {/* Seller's Timestamp */}
                 <div className="flex justify-between items-center">

@@ -6,14 +6,17 @@ import { AiOutlineClose } from "react-icons/ai";
 import { MdEmail } from "react-icons/md";
 import { FaShopify } from "react-icons/fa";
 import { BiMoney } from "react-icons/bi";
-import { AiOutlineShoppingCart } from "react-icons/ai";
 import { FaShoppingCart } from "react-icons/fa";
 import OrderModel from './OrderModel'; // Import the modal component
+import ReviewModel from './ReviewModel'; // Import the ReviewModel component
 import useRole from '../../Hooks/useRole';
+import ReviewData from './ReviewData';
+import { MdReviews } from "react-icons/md";
 
 const CardDetails = () => {
   const { id } = useParams();
-  const [isModalOpen, setIsModalOpen] = useState(false); // State to control modal
+  const [isOrderModalOpen, setIsOrderModalOpen] = useState(false); // State to control order modal
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false); // State to control review modal
   const [selectedSize, setSelectedSize] = useState(''); // State to manage selected size
   const [role] = useRole();
 
@@ -65,13 +68,13 @@ const CardDetails = () => {
           <img
             src={product.image}
             alt={`${product.productName} - ${product.category}`}
-            className="w-full h-[500px] object-contain rounded-lg p-2"
+            className="w-full h-auto max-h-[500px] object-contain rounded-lg p-2"
             loading="lazy"
           />
         </div>
 
         {/* Product Details */}
-        <div className="sm:w-1/2 sm:pl-6">
+        <div className="sm:w-1/2 sm:pl-6 mt-4 sm:mt-0">
           <h2 className="text-2xl font-semibold text-gray-800 mb-2">
             {product.productName}
           </h2>
@@ -88,7 +91,7 @@ const CardDetails = () => {
                   </span>
                 </>
               ) : (
-                <span>{product.price} BDT</span> // When no discount is available
+                <span>{product.price} BDT</span>
               )}
             </p>
           </div>
@@ -142,40 +145,35 @@ const CardDetails = () => {
           </div>
 
           {/* Buttons - Order Now & Add to Cart */}
-          <div className="mt-4 flex flex-wrap gap-4 justify-between">
+          <div className="mt-4 flex gap-4 justify-between flex-wrap">
             {/* Order Now Button */}
             <button
               disabled={isDisabled || product.quantity === 0}
-              onClick={() => setIsModalOpen(true)}
-              className={`relative w-full sm:w-1/2 lg:w-1/4 py-3 flex items-center justify-center gap-2 rounded-md text-white font-semibold transition duration-300 ease-in-out 
-              ${product.quantity > 0 && !isDisabled ? 'bg-lime-500 hover:bg-lime-600' : 'bg-gray-400 cursor-not-allowed'}
-              before:absolute before:inset-0 before:border-2 before:border-lime-500 before:rounded-md before:opacity-0 before:transition-all before:duration-500
-              hover:before:opacity-100 hover:before:scale-105`}
+              onClick={() => setIsOrderModalOpen(true)}
+              className={`w-full sm:w-1/4 py-3 flex items-center justify-center gap-2 rounded-md text-white font-semibold transition duration-300 ease-in-out 
+              ${product.quantity > 0 && !isDisabled ? 'bg-lime-500 hover:bg-lime-600' : 'bg-gray-400 cursor-not-allowed'}`}
             >
               <FaShoppingCart />
               {isDisabled ? 'You Cannot Buy' : product.quantity > 0 ? 'Order Now' : 'Out of Stock'}
             </button>
 
-            {/* Add to Cart Button */}
+            {/* Add Review Button */}
             <button
-              disabled={isDisabled || product.quantity === 0}
-              onClick={() => console.log('Added to cart')}
-              className={`relative w-full sm:w-1/2 lg:w-1/4 py-3 flex items-center justify-center gap-2 rounded-md text-white font-semibold transition duration-300 ease-in-out 
-              ${product.quantity > 0 && !isDisabled ? 'bg-lime-500 hover:bg-lime-600' : 'bg-gray-400 cursor-not-allowed'}
-              before:absolute before:inset-0 before:border-2 before:border-lime-500 before:rounded-md before:opacity-0 before:transition-all before:duration-500
-              hover:before:opacity-100 hover:before:scale-105`}
+              onClick={() => setIsReviewModalOpen(true)} // Open Review Modal
+              className={`w-full sm:w-1/4 py-3 flex items-center justify-center gap-2 rounded-md text-white font-semibold transition duration-300 ease-in-out 
+              ${product.quantity > 0 && !isDisabled ? 'bg-lime-500 hover:bg-lime-600' : 'bg-gray-400 cursor-not-allowed'}`}
             >
-              <AiOutlineShoppingCart />
-              Add to Cart
+           <MdReviews />
+              Add Review
             </button>
           </div>
         </div>
       </div>
 
       {/* Order Modal */}
-      {isModalOpen && (
+      {isOrderModalOpen && (
         <OrderModel
-          closeModal={() => setIsModalOpen(false)}
+          closeModal={() => setIsOrderModalOpen(false)}
           productName={product.productName}
           price={discountedPrice.toFixed(2)} // Pass the discounted price
           size={selectedSize}
@@ -187,6 +185,15 @@ const CardDetails = () => {
           seller={product.seller} // Pass the entire seller object to the modal
         />
       )}
+
+      {/* Review Modal */}
+      {isReviewModalOpen && (
+        <ReviewModel
+          closeModal={() => setIsReviewModalOpen(false)} // Close Review Modal
+          _id={product._id} // Passing product id to the ReviewModal
+        />
+      )}
+      <ReviewData></ReviewData>
     </div>
   );
 };

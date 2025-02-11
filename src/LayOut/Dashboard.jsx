@@ -120,6 +120,7 @@ const DashBoard = () => {
               <>
                 <SidebarItem to="/dashboard/my-orders" icon={FaShoppingCart} label="My Orders" />
                 <SidebarItem to="/dashboard/become-seller" icon={FaUserTie} label="Become A Seller" />
+                <SidebarItem to="/dashboard/add-to-cart" icon={FaUserTie} label="Add To Cart" />
                 <div className="divider"></div>
               </>
             )}
