@@ -15,7 +15,13 @@ const ManageUsers = () => {
         },
     });
 
-   
+    // Sorting users so that 'Seller' appears at the top
+    const sortedUsers = users.sort((a, b) => {
+        if (a.role === "seller" && b.role !== "seller") return -1;
+        if (a.role !== "seller" && b.role === "seller") return 1;
+        return 0; // Keep other roles in the same order
+    });
+
     return (
         <div className="overflow-x-auto p-5">
             <h2 className="text-2xl font-bold mb-4">Manage Users</h2>
@@ -30,7 +36,7 @@ const ManageUsers = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {users.map(userData => (
+                    {sortedUsers.map(userData => (
                         <ManageUserRow key={userData._id} user={userData} refetch={refetch} />
                     ))}
                 </tbody>

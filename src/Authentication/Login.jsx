@@ -2,6 +2,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import GoogleLogin from './GoogleLogin';
 import useAuth from '../Hooks/useAuth';
 import Swal from 'sweetalert2'; // Import SweetAlert2
+import login from '../../src/assets/Login.json'; // Lottie file
+import Lottie from 'react-lottie'; // Import Lottie component
 
 const Login = () => {
     const { signIn, loading } = useAuth(); // Get loading state
@@ -33,12 +35,28 @@ const Login = () => {
         }
     };
 
+    // Lottie animation options
+    const options = {
+        loop: true,
+        autoplay: true,
+        animationData: login, // Path to your Lottie JSON file
+        rendererSettings: {
+            preserveAspectRatio: "xMidYMid slice",
+        },
+    };
+
     return (
-        <div className="flex justify-center items-center h-screen bg-gray-50 py-12">
-            <div className="bg-white p-8 rounded-lg shadow-lg w-96">
+        <div className="flex flex-col md:flex-row justify-center items-center h-screen bg-gray-50 py-12 px-4 md:px-0">
+            {/* Lottie Animation (মোবাইলে উপরে, বড় স্ক্রিনে পাশে) */}
+            <div className="w-full md:w-1/2 flex justify-center items-center order-first md:order-none">
+                <Lottie options={options} height={250} width={250} />
+            </div>
+
+            {/* Form Section */}
+            <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md flex flex-col items-center md:w-96">
                 <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">Login</h2>
 
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit} className="w-full">
                     {/* Email Field */}
                     <div className="mb-4">
                         <label htmlFor="email" className="block text-sm font-semibold text-gray-700">
@@ -98,7 +116,6 @@ const Login = () => {
                         Don&apos;t have an account?{' '}
                         <Link to="/signup" className="text-blue-500">Sign Up</Link>
                     </p>
-
                 </div>
             </div>
         </div>

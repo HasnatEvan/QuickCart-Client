@@ -4,6 +4,7 @@ import {
   getAuth, 
   GoogleAuthProvider, 
   onAuthStateChanged, 
+  sendEmailVerification, 
   signInWithEmailAndPassword, 
   signInWithPopup, 
   signOut, 
@@ -11,7 +12,8 @@ import {
 } from "firebase/auth";
 import { app } from "../Firebase/firebase.config";
 import axios from "axios";
-import PropTypes from "prop-types"; // Import PropTypes
+
+import PropTypes from "prop-types";
 
 export const AuthContext = createContext(null);
 const auth = getAuth(app);
@@ -21,61 +23,90 @@ const AuthProviders = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Create User
-  const createUser = (email, password) => {
+  // ✅ **Create User & Send Verification Email**
+  const createUser = async (email, password) => {
     setLoading(true);
-    return createUserWithEmailAndPassword(auth, email, password);
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      await sendEmailVerification(userCredential.user);
+      return userCredential;
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // Login User
-  const signIn = (email, password) => {
+  // ✅ **Login User**
+  const signIn = async (email, password) => {
     setLoading(true);
-    return signInWithEmailAndPassword(auth, email, password);
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      if (!userCredential.user.emailVerified) {
+        throw new Error("Please verify your email before logging in.");
+      }
+      return userCredential;
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // Google Login
-  const signInWithGoogle = () => {
+  // ✅ **Google Login**
+  const signInWithGoogle = async () => {
     setLoading(true);
-    return signInWithPopup(auth, googleProvider);
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      return result;
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // Log Out
+  // ✅ **Log Out**
   const logOut = async () => {
     setLoading(true);
-    return signOut(auth);
+    try {
+      await signOut(auth);
+      setUser(null);
+      await axios.get("http://localhost:5000/logout", { withCredentials: true });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // Update Profile
-  const updateUserProfile = (name, photo) => {
-    return updateProfile(auth.currentUser, {
-      displayName: name,
-      photoURL: photo,
-    });
+  // ✅ **Update Profile**
+  const updateUserProfile = async (name, photo) => {
+    if (!auth.currentUser) return;
+    try {
+      await updateProfile(auth.currentUser, {
+        displayName: name,
+        photoURL: photo,
+      });
+      setUser({ ...auth.currentUser, displayName: name, photoURL: photo });
+    } finally {
+      // No need for an explicit catch block if not handling the error in this context
+    }
   };
 
+  // ✅ **Check User Authentication State**
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      console.log('CurrentUser-->', currentUser?.email);
-      if (currentUser?.email) {
+      setLoading(true);
+      if (currentUser?.emailVerified) {
         setUser(currentUser);
-        // Get JWT token
-        await axios.post(
-          'http://localhost:5000/jwt',
-          { email: currentUser?.email },
-          { withCredentials: true }
-        );
+        try {
+          await axios.post("http://localhost:5000/jwt", { email: currentUser.email }, { withCredentials: true });
+        } catch (error) {
+          console.error("JWT token error:", error);
+        }
       } else {
-        setUser(currentUser);
-        await axios.get('http://localhost:5000/logout', {
-          withCredentials: true,
-        });
+        setUser(null);
       }
       setLoading(false);
     });
+
     return () => unsubscribe();
   }, []);
-  
 
+  // 🔥 **Authentication Context Data**
   const userInfo = {
     user,
     loading,
@@ -94,7 +125,7 @@ const AuthProviders = ({ children }) => {
 };
 
 AuthProviders.propTypes = {
-  children: PropTypes.node.isRequired, // Validate children prop
+  children: PropTypes.node.isRequired,
 };
 
 export default AuthProviders;

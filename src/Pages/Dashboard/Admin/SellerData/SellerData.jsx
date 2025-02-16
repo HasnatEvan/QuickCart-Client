@@ -25,7 +25,6 @@ const SellerData = () => {
                         <th className="p-3 text-left">Email</th>
                         <th className="p-3 text-left">Phone</th>
                         <th className="p-3 text-left">Photo</th>
-                        <th className="p-3 text-left">Role</th>
                         <th className="p-3 text-left">Actions</th>
                     </tr>
                 </thead>

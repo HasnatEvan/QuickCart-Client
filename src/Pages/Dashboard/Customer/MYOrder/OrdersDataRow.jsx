@@ -59,7 +59,7 @@ const OrdersDataRow = ({ order, refetch }) => {
         <div className="whitespace-nowrap overflow-x-auto">{name}</div>
       </td>
 
-      <td className="px-4 py-2">${Number(price).toFixed(2)}</td>
+      <td className="px-4 py-2">{Number(price).toFixed(2)}</td>
 
       <td className="px-4 py-2">{quantity}</td>
       <td className="px-4 py-2">
@@ -108,6 +108,7 @@ OrdersDataRow.propTypes = {
     quantity: PropTypes.number.isRequired,
     status: PropTypes.string.isRequired,
     address: PropTypes.string.isRequired,
+    customerPhone: PropTypes.string.isRequired,
     size: PropTypes.string,
     productId: PropTypes.string.isRequired,
     transactionId: PropTypes.string,

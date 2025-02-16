@@ -21,6 +21,8 @@ import EditInventory from "../Pages/Dashboard/Seller/My Inventory/EditInventory"
 import BecomeSeller from "../Pages/Dashboard/Customer/BecomeSeller/BecomeSeller";
 import AddToCart from "../Pages/Dashboard/Customer/AddToCart/AddToCart";
 import Profile from "../Pages/Dashboard/All/Profile";
+import SellerStatistics from "../Pages/Dashboard/Seller/SellerStatistics/SellerStatistics";
+import Statistics from "../Pages/Dashboard/Admin/Statistics/Statistics";
 
 export const router = createBrowserRouter([
     {
@@ -55,6 +57,10 @@ export const router = createBrowserRouter([
         element: <PrivateRoute><DashBoard></DashBoard></PrivateRoute>,
         children:[
             {
+                path:'Statistics',
+                element:<PrivateRoute><AdminRoute><Statistics></Statistics></AdminRoute></PrivateRoute>
+            },
+            {
                 path:'manage-users',
                 element:<PrivateRoute><AdminRoute><ManageUsers></ManageUsers></AdminRoute></PrivateRoute>
             },
@@ -69,6 +75,10 @@ export const router = createBrowserRouter([
 
 
 
+            {
+                path:'seller-statistics',
+                element:<PrivateRoute><SellerRoute><SellerStatistics></SellerStatistics></SellerRoute></PrivateRoute>
+            },
             {
                 path:'addItem',
                 element:<PrivateRoute><SellerRoute><AddItem></AddItem></SellerRoute></PrivateRoute>

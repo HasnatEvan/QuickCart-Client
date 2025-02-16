@@ -1,4 +1,3 @@
-
 import { useNavigate, useParams } from "react-router-dom";
 import { imageUpload } from "../../../../Api/utils";
 import useAuth from "../../../../Hooks/useAuth";
@@ -7,12 +6,13 @@ import Swal from 'sweetalert2';
 import { useEffect, useState } from "react";
 
 const EditInventory = () => {
-  const { user} = useAuth();
+  const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
   const navigate = useNavigate();
   const { id } = useParams(); // To get the product ID from URL
 
   const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(false); // For loading state
 
   useEffect(() => {
     const fetchProductData = async () => {
@@ -29,6 +29,8 @@ const EditInventory = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setLoading(true); // Start loading
+
     const form = event.target;
 
     const productName = form.productName.value;
@@ -92,6 +94,8 @@ const EditInventory = () => {
         confirmButtonText: 'Okay'
       });
       console.error("Error updating product", error);
+    } finally {
+      setLoading(false); // End loading
     }
   };
 
@@ -280,8 +284,12 @@ const EditInventory = () => {
 
           {/* Submit Button */}
           <div className="col-span-1 sm:col-span-2 md:col-span-3 text-center">
-            <button type="submit" className="w-full bg-blue-500 text-white p-4 mt-4 rounded-md hover:bg-blue-600">
-              Update Product
+            <button type="submit" className="w-full bg-lime-500 text-white p-4 mt-4 rounded-md">
+              {loading ? (
+                <span className="loading loading-ring loading-lg"></span> // Spinner in button
+              ) : (
+                'Update Product'
+              )}
             </button>
           </div>
         </form>

@@ -4,7 +4,7 @@ import useAxiosSecure from "../../../../Hooks/useAxiosSecure";
 import Swal from "sweetalert2"; // Import SweetAlert2
 
 const SellerDataCard = ({ seller, refetch }) => {
-    const { name, email, phone, photo, role, _id } = seller;
+    const { name, email, phone, photo,  _id } = seller;
     const axiosSecure = useAxiosSecure();
 
     // Handle seller deletion with SweetAlert confirmation
@@ -44,7 +44,7 @@ const SellerDataCard = ({ seller, refetch }) => {
                     <span>No photo</span>
                 )}
             </td>
-            <td className="p-3">{role}</td>
+   
             <td className="p-3">
                 {/* Navigate to seller's detailed view page */}
                 <Link to={`/dashboard/seller/${_id}`}>

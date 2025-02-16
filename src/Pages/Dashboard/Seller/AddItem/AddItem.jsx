@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { imageUpload } from "../../../../Api/utils";
 import useAuth from "../../../../Hooks/useAuth";
@@ -5,12 +6,14 @@ import useAxiosSecure from "../../../../Hooks/useAxiosSecure";
 import Swal from 'sweetalert2';
 
 const AddItem = () => {
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
   const navigate = useNavigate(); // Initialize navigate
+  const [isLoading, setIsLoading] = useState(false);  // Add local loading state
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setIsLoading(true); // Set loading to true when the form is submitted
     const form = event.target;
 
     const productName = form.productName.value;
@@ -85,6 +88,8 @@ const AddItem = () => {
         confirmButtonText: 'Okay'
       });
       console.error("Error adding product", error);
+    } finally {
+      setIsLoading(false); // Set loading to false when the process is finished
     }
   };
 
@@ -274,9 +279,9 @@ const AddItem = () => {
             <button
               type="submit"
               className="w-full sm:w-full bg-lime-500 text-white p-3 rounded-md hover:bg-lime-800-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              disabled={loading}
+              disabled={isLoading}
             >
-              {loading ? (
+              {isLoading ? (
                 <span className="loading loading-ring loading-md"></span>
               ) : (
                 'Add Product'

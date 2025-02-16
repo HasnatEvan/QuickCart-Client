@@ -28,7 +28,9 @@ const OrderModel = ({
   const [transactionId, setTransactionId] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("");
   const [totalPrice, setTotalPrice] = useState(price);
-  const [loading, setLoading] = useState(false); // New loading state
+  const [loading, setLoading] = useState(false);
+  const [transactionIdError, setTransactionIdError] = useState("");
+  const [phoneError, setPhoneError] = useState(""); // Error state for Phone Number
 
   const handleQuantityChange = (e) => {
     const value = parseInt(e.target.value, 10);
@@ -40,14 +42,15 @@ const OrderModel = ({
 
   const handleConfirmOrder = async () => {
     if (!customerPhone.trim()) {
-      Swal.fire({
-        title: "Oops!",
-        text: "Please enter your phone number.",
-        icon: "warning",
-        confirmButtonText: "OK",
-      });
+      setPhoneError("Phone number is required.");
+      return;
+    } else if (customerPhone.length !== 11) {
+      setPhoneError("Phone number must be 11 characters.");
       return;
     }
+
+    setPhoneError(""); // Clear error if valid
+
     if (!customerAddress.trim()) {
       Swal.fire({
         title: "Oops!",
@@ -58,14 +61,15 @@ const OrderModel = ({
       return;
     }
     if (deliveryPrice > 0 && !transactionId.trim()) {
-      Swal.fire({
-        title: "Oops!",
-        text: "Please enter your transaction ID.",
-        icon: "warning",
-        confirmButtonText: "OK",
-      });
+      setTransactionIdError("Transaction ID is required.");
+      return;
+    } else if (deliveryPrice > 0 && transactionId.length !== 10) {
+      setTransactionIdError("Transaction ID must be 10 characters.");
       return;
     }
+
+    setTransactionIdError(""); // Clear error if valid
+
     if (deliveryPrice > 0 && !paymentMethod) {
       Swal.fire({
         title: "Oops!",
@@ -76,7 +80,7 @@ const OrderModel = ({
       return;
     }
 
-    setLoading(true); // Set loading state to true
+    setLoading(true);
 
     const updatedOrderInfo = {
       customer: {
@@ -132,7 +136,7 @@ const OrderModel = ({
         confirmButtonText: "OK",
       });
     } finally {
-      setLoading(false); // Set loading state back to false
+      setLoading(false);
     }
   };
 
@@ -149,7 +153,7 @@ const OrderModel = ({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <p><strong>Product:</strong> {productName}</p>
                 <p><strong>Price:</strong> {price} BDT</p>
-                <p><strong>Size:</strong> {size || "Not Selected"}</p>
+                <p><strong>Size & Color:</strong> {size || "Not Selected"}</p>
                 {deliveryPrice > 0 && (
                   <p><strong>Delivery Charge:</strong> {deliveryPrice} BDT</p>
                 )}
@@ -179,6 +183,9 @@ const OrderModel = ({
                       placeholder="Enter transaction ID"
                       className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500"
                     />
+                    {transactionIdError && (
+                      <p className="text-red-500 text-sm">{transactionIdError}</p>
+                    )}
                   </div>
                 )}
               </div>
@@ -188,10 +195,20 @@ const OrderModel = ({
                 <input
                   type="tel"
                   value={customerPhone}
-                  onChange={(e) => setCustomerPhone(e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    // Allow the input only if it's 11 characters or less
+                    if (value.length <= 11) {
+                      setCustomerPhone(value);
+                    }
+                  }}
                   placeholder="Enter phone number"
                   className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500"
+                  maxLength="11"  // Limit input to 11 characters
                 />
+                {phoneError && (
+                  <p className="text-red-500 text-sm">{phoneError}</p>
+                )}
               </div>
 
               <div>

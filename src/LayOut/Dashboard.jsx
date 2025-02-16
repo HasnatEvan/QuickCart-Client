@@ -16,6 +16,9 @@ import {
 import PropTypes from "prop-types";
 import useRole from "../Hooks/useRole";
 import { motion } from "framer-motion"; // Import motion from framer-motion
+import logo from '../../src/assets/logo.png'
+import useAuth from "../Hooks/useAuth"; // Import useAuth for logout functionality
+import Swal from "sweetalert2"; // Import SweetAlert2
 
 const SidebarItem = ({ to, icon: Icon, label }) => (
   <li>
@@ -43,9 +46,28 @@ const DashBoard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [role, isLoading] = useRole();
   const navigate = useNavigate();
+  const { logOut } = useAuth(); // Get the logout function from the useAuth hook
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  // SweetAlert2 Logout Confirmation
+  const handleLogout = () => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You will be logged out!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, log me out!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        logOut(); // Call the logOut function if confirmed
+        Swal.fire("Logged Out!", "You have been logged out.", "success");
+      }
+    });
   };
 
   useEffect(() => {
@@ -61,7 +83,7 @@ const DashBoard = () => {
   }, [role, isLoading, navigate]);
 
   return (
-    <div>
+    <div className="font-pri">
       <div className="flex h-screen">
         {/* Toggle Button for Mobile */}
         <button
@@ -73,26 +95,27 @@ const DashBoard = () => {
 
         {/* Sidebar */}
         <div
-          className={`lg:w-1/6 w-64 bg-lime-600 text-white p-4 h-full fixed lg:static z-40 transition-all duration-300 ${
+          className={`lg:w-1/6 w-64 bg-lime-500 text-white p-4 h-full fixed lg:static z-40 transition-all duration-300 ${
             isSidebarOpen ? "left-0" : "-left-64"
           }`}
         >
-          {/* QuickCart Title with Jump Animation */}
-          <motion.div
-            animate={{
-              y: [0, -20, 0], // Jump effect: moves up and then comes back down
-              scale: [1, 1.1, 1], // Slight scale-up effect while jumping
-            }}
-            transition={{
-              repeat: Infinity, // Repeats the animation infinitely
-              duration: 5, // Duration of each jump cycle
-              ease: "easeInOut", // Smooth easing
-            }}
-            whileHover={{ scale: 1.1 }} // Slight hover effect to scale the text
-            className="text-center mb-4"
-          >
-            <h2 className="text-xl font-bold text-white">QuickCart-BD</h2>
-          </motion.div>
+        {/* QuickCart Title with Logo and Jump Animation */}
+<motion.div
+  animate={{
+    y: [0, -20, 0], // Jump effect: moves up and then comes back down
+    scale: [1, 1.1, 1], // Slight scale-up effect while jumping
+  }}
+  transition={{
+    repeat: Infinity, // Repeats the animation infinitely
+    duration: 5, // Duration of each jump cycle
+    ease: "easeInOut", // Smooth easing
+  }}
+  whileHover={{ scale: 1.1 }} // Slight hover effect to scale the text
+  className="text-center mb-4 flex items-center justify-center gap-2"
+>
+  <img src={logo} alt="QuickCart-BD Logo" className="w-12 h-12" />  
+  <h2 className="-ml-4 font-bold text-white">QuickCart-BD</h2>
+</motion.div>
 
           <ul className="menu text-white">
             {/* Admin */}
@@ -108,6 +131,7 @@ const DashBoard = () => {
             {/* Seller */}
             {role === "seller" && (
               <>
+               <SidebarItem to="/dashboard/seller-statistics" icon={FaAsterisk} label="Statistics" />
                 <SidebarItem to="/dashboard/my-inventory" icon={FaBoxOpen} label="My Inventory" />
                 <SidebarItem to="/dashboard/addItem" icon={FaPlusCircle} label="Add Item" />
                 <SidebarItem to="/dashboard/manage-orders" icon={FaClipboardList} label="Manage Orders" />
@@ -128,7 +152,15 @@ const DashBoard = () => {
             {/* All User */}
             <SidebarItem to="/" icon={FaHome} label="Home" />
             <SidebarItem to="/dashboard/profile" icon={FaUser} label="Profile" />
-            <SidebarItem to="#" icon={FaSignOutAlt} label="Logout" />
+            <li>
+              <button
+                className="text-white flex items-center gap-2 p-2 rounded hover:bg-lime-500 w-full"
+                onClick={handleLogout} // Trigger SweetAlert2 for logout
+              >
+                <FaSignOutAlt />
+                Logout
+              </button>
+            </li>
           </ul>
         </div>
 

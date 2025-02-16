@@ -17,7 +17,7 @@ const Card = ({ product }) => {
           <img
             src={image}
             alt={productName}
-            className="w-full h-36 sm:h-40 object-cover rounded-lg"
+            className="w-full h-36 sm:h-40 object-contain rounded-lg mx-auto"
           />
           {/* Discount Badge */}
           {discountPercentage > 0 && (

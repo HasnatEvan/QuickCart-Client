@@ -1,8 +1,8 @@
 import { NavLink } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import { FaBars, FaTimes } from "react-icons/fa";
-import { IoIosArrowDown } from "react-icons/io"; // Import the IoIosArrowDown icon
-import { motion } from "framer-motion"; // Import Framer Motion
+import { IoIosArrowDown } from "react-icons/io";
+import { motion } from "framer-motion";
 import useAuth from "../Hooks/useAuth";
 import Swal from "sweetalert2";
 
@@ -47,15 +47,15 @@ const NavBar = () => {
 
     return (
         <>
-            <nav className="shadow-md fixed top-0 left-0 w-full z-50 bg-lime-500">
-                <div className="container mx-auto px-4 py-3 flex justify-between items-center">
+            <nav className="shadow-md fixed top-0 left-0 w-full z-50 bg-lime-500 font-pri ">
+                <div className="container mx-auto px-4 md:px-6 lg:px-8 py-3 flex justify-between items-center max-w-screen-xl">
                     {/* Animated Logo */}
                     <motion.div
-                        animate={{ y: [-10, 10, -10] }} // Moves up and down
-                        transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }} // Super slow motion
-                        whileHover={{ scale: 1.1 }} // Slight hover effect
+                        animate={{ y: [-10, 10, -10] }}
+                        transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
+                        whileHover={{ scale: 1.1 }}
                     >
-                        <NavLink to="/" className="text-2xl font-bold text-white">
+                        <NavLink to="/" className="text-2xl font-bold text-white font-pr ">
                             QuickCart-BD
                         </NavLink>
                     </motion.div>
@@ -63,7 +63,7 @@ const NavBar = () => {
                     {/* Desktop Menu */}
                     <ul className="hidden md:flex space-x-6 text-lg">
                         <li>
-                            <NavLink to="/" className={({ isActive }) => (isActive ? "text-white font-semibold" : "text-gray-700")}>
+                            <NavLink to="/" className={({ isActive }) => (isActive ? "text-white font-semibold" : "text-gray-700 ")}>
                                 Home
                             </NavLink>
                         </li>
@@ -72,7 +72,7 @@ const NavBar = () => {
                         <li className="relative" ref={menuRef}>
                             <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-white flex items-center space-x-2">
                                 <span>Menu</span>
-                                <IoIosArrowDown /> {/* React Icon added here */}
+                                <IoIosArrowDown />
                             </button>
                             {isMenuOpen && (
                                 <motion.ul

@@ -112,13 +112,13 @@ const CardDetails = () => {
           </div>
 
           <div className="mb-4">
-            <h4 className="font-semibold text-gray-800">Sizes Available:</h4>
+            <h4 className="font-semibold text-gray-800">Sizes & Colors Available:</h4>
             <select
               className="w-full p-4 mt-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
               value={selectedSize}
               onChange={(e) => setSelectedSize(e.target.value)}
             >
-              <option value="">Select Size</option>
+              <option value="">Select Size & Color</option>
               {product.sizes.map((size, index) =>
                 size ? <option key={index} value={size}>{size}</option> : null
               )}
